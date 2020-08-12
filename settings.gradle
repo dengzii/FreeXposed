@@ -1,0 +1,3 @@
+include ':free'
+include ':app'
+rootProject.name = "freexposed"

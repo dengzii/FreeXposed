@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_item"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:background="@drawable/ripple_package_item"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="8dp">
+
+    <ImageView
+        android:id="@+id/iv_package_icon"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:src="@drawable/ic_launcher"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_package_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        app:layout_constraintStart_toEndOf="@id/iv_package_icon"
+        app:layout_constraintTop_toTopOf="@id/iv_package_icon"
+        tools:text="package label" />
+
+    <TextView
+        android:id="@+id/tv_package_version"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        app:layout_constraintStart_toEndOf="@id/tv_package_label"
+        app:layout_constraintTop_toTopOf="@id/tv_package_label"
+        tools:text="package name" />
+
+    <TextView
+        android:id="@+id/tv_package_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        app:layout_constraintBottom_toBottomOf="@id/iv_package_icon"
+        app:layout_constraintStart_toEndOf="@id/iv_package_icon"
+        app:layout_constraintTop_toBottomOf="@id/tv_package_version"
+        tools:text="package version" />
+</androidx.constraintlayout.widget.ConstraintLayout>
