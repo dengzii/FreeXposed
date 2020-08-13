@@ -2,14 +2,17 @@ package com.dengzii.freexp
 
 import android.content.Context
 import android.content.pm.ApplicationInfo
-import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.IXposedHookZygoteInit
+import de.robv.android.xposed.*
 import de.robv.android.xposed.IXposedHookZygoteInit.StartupParam
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import de.robv.android.xposed.callbacks.XC_InitPackageResources
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam
 
-class FreeXpLoader : IXposedHookLoadPackage, IXposedHookZygoteInit {
+class FreeXpLoader : IXposedHookLoadPackage, IXposedHookZygoteInit, IXposedHookInitPackageResources {
+
+    companion object {
+        const val KEY_FREE_XP_MODULE_LIST = "KEY_FREE_XP_MODULE_LIST"
+        const val SP_FREE_XP_CONFIG = "FREE_XP_CONFIG"
+    }
 
     private lateinit var startupParam: StartupParam
 
@@ -30,7 +33,7 @@ class FreeXpLoader : IXposedHookLoadPackage, IXposedHookZygoteInit {
             XposedHelpers.findAndHookMethod(applicationClass, "attach", Context::class.java,
                     AppHook(lpparam, startupParam))
         } catch (e: Throwable) {
-            Logger.important("FreeXp load module failed: ${e.message}")
+            Logger.important("FreeXp hook Application failed: ${e.message}")
             Logger.e(e)
         }
     }
@@ -39,5 +42,9 @@ class FreeXpLoader : IXposedHookLoadPackage, IXposedHookZygoteInit {
     override fun initZygote(startupParam: StartupParam) {
         XposedBridge.log("XposedLoader.initZygote, ${startupParam.modulePath}")
         this.startupParam = startupParam
+    }
+
+    override fun handleInitPackageResources(resparam: XC_InitPackageResources.InitPackageResourcesParam?) {
+
     }
 }

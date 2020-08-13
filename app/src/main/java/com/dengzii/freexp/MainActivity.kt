@@ -2,6 +2,7 @@ package com.dengzii.freexp
 
 import android.content.IntentFilter
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
@@ -17,6 +18,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        if (!ShellUtils.requestRoot(packageCodePath)) {
+            Toast.makeText(this, "获取 Root 权限失败.", Toast.LENGTH_SHORT).show()
+        }
         initView()
     }
 

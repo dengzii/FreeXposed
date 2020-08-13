@@ -1,6 +1,10 @@
 package com.dengzii.freexp
 
+import android.app.Activity
+import android.app.AlertDialog
+import android.app.Application
 import android.content.Context
+import android.os.Bundle
 import dalvik.system.PathClassLoader
 import de.robv.android.xposed.IXposedHookZygoteInit
 import de.robv.android.xposed.XC_MethodHook
@@ -15,7 +19,7 @@ import java.io.File
  * desc   : none
  *
  */
-class AppHook(
+internal class AppHook(
         private val lpparam: XC_LoadPackage.LoadPackageParam,
         private val startupParam: IXposedHookZygoteInit.StartupParam)
     : XC_MethodHook() {
@@ -27,11 +31,26 @@ class AppHook(
     override fun afterHookedMethod(param: MethodHookParam) {
         super.afterHookedMethod(param)
         val context = param.args[0] as Context
+        val app = param.thisObject as? Application ?: return
+
+        app.onActivityStarted {
+            if (intent.hasExtra(FreeXpLoader.KEY_FREE_XP_MODULE_LIST)) {
+                val list = intent.getStringArrayExtra(FreeXpLoader.KEY_FREE_XP_MODULE_LIST)
+                println("==>${list.joinToString("|")}")
+                AlertDialog.Builder(this)
+                        .setTitle("FreeXp")
+                        .setNegativeButton("Ok") { _, _ -> }
+                        .setMessage(list.joinToString("\r\n"))
+                        .create()
+                        .show()
+            }
+        }
+        return
         lpparam.classLoader = context.classLoader
 
         val sp = context.getSharedPreferences("free_xp_config", Context.MODE_PRIVATE)
-        val modulePath = File(sp.getString("free_xp_module_class_path", ""))
-        if (!modulePath.exists()) {
+        val modulePath = sp.getStringSet("free_xp_module_class", setOf())
+        if (modulePath.isNotEmpty()) {
             return
         }
 
@@ -52,7 +71,7 @@ class AppHook(
             XposedBridge.log("invoke handleLoadPackage success.")
         } catch (e: Throwable) {
             Logger.important("XPOSED HOT LOAD FAILED!" +
-                    " Process: ${lpparam.processName}, reason : ${e.localizedMessage}")
+                    " Process: ${lpparam.processName}, reason : ${e.message}")
         }
     }
 
@@ -70,9 +89,8 @@ class AppHook(
                     or Context.CONTEXT_RESTRICTED
             )
         } catch (e: Throwable) {
-            Logger.important("create package context exception start \r\n".plus("===".repeat(30)))
-            Logger.e(e)
-            throw Exception(e)
+            Logger.important("create package context exception")
+            throw e
         }
         val apkPath = moduleContext.packageCodePath
         val apk = File(apkPath)
@@ -82,5 +100,38 @@ class AppHook(
         Logger.log("load class from > apk path: $apkPath, package: $packageName, class: $classPatch")
         val pathClassLoader = PathClassLoader(apk.absolutePath, ClassLoader.getSystemClassLoader())
         return Class.forName(classPatch, true, pathClassLoader)
+    }
+
+    private fun Application.onActivityStarted(block: Activity.() -> Unit) {
+        this.registerActivityLifecycleCallbacks(object : ActivityLifecycleCallBack() {
+            override fun onActivityStarted(p0: Activity?) {
+                super.onActivityStarted(p0)
+                if (p0 == null) return
+                block.invoke(p0)
+            }
+        })
+    }
+
+    abstract class ActivityLifecycleCallBack : Application.ActivityLifecycleCallbacks {
+        override fun onActivityPaused(p0: Activity?) {
+        }
+
+        override fun onActivityResumed(p0: Activity?) {
+        }
+
+        override fun onActivityStarted(p0: Activity?) {
+        }
+
+        override fun onActivityDestroyed(p0: Activity?) {
+        }
+
+        override fun onActivitySaveInstanceState(p0: Activity?, p1: Bundle?) {
+        }
+
+        override fun onActivityStopped(p0: Activity?) {
+        }
+
+        override fun onActivityCreated(p0: Activity?, p1: Bundle?) {
+        }
     }
 }

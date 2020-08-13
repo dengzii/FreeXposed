@@ -13,7 +13,7 @@ object Logger {
     fun log(log: Any) {
         val rLog = log.toString().replace("\r\n", "\r\n║ ")
         XposedBridge.log(
-            "AnyHook/$processName  ${getCallerClassName()}\r\n" +
+            "FreeXp/$processName  ${getCallerClassName()}\r\n" +
                     "╔═══════════════════════════════════ VERBOSE ══════════════════════════════════\r\n" +
                     "║ $rLog\r\n" +
                     "╚══════════════════════════════════════════════════════════════════════════════\r\n"
@@ -23,7 +23,7 @@ object Logger {
     fun important(log: Any) {
         val rLog = log.toString().replace("\r\n", "\r\n║ ")
         XposedBridge.log(
-            "AnyHook/$processName  ${getCallerClassName()}\r\n" +
+            "FreeXp/$processName  ${getCallerClassName()}\r\n" +
                     "################################## IMPORTANT ##################################\r\n" +
                     "## $rLog\r\n" +
                     "###############################################################################\r\n"
@@ -32,7 +32,7 @@ object Logger {
 
     fun e(e: Throwable) {
         XposedBridge.log(
-            "AnyHook/$processName  ${getCallerClassName()}\r\n" +
+            "FreeXp/$processName  ${getCallerClassName()}\r\n" +
                     "********************************** EXCEPTION **********************************\r\n" +
                     "** ${e.message}\r\n" +
                     "*******************************************************************************\r\n"
