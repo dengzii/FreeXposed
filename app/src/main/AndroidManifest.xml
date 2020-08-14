@@ -22,7 +22,8 @@
             android:name="xposeddescription"
             android:value="Free Xposed, hook as easy as you want." />
 
-        <activity android:name="com.dengzii.freexp.MainActivity">
+        <activity android:name="com.dengzii.freexp.ui.MainActivity"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

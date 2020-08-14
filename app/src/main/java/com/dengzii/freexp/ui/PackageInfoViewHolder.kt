@@ -1,11 +1,14 @@
-package com.dengzii.freexp
+package com.dengzii.freexp.ui
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.dengzii.adapter.AbsViewHolder
+import com.dengzii.freexp.AppInfo
+import com.dengzii.freexp.R
 
 class PackageInfoViewHolder(p: ViewGroup) : AbsViewHolder<AppInfo>(p) {
 
@@ -30,6 +33,15 @@ class PackageInfoViewHolder(p: ViewGroup) : AbsViewHolder<AppInfo>(p) {
         mTvVersion.text = data.versionName
         mIvXpModule.visibility = if (data.isXpModule) View.VISIBLE else View.GONE
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            mIvSettings.imageTintList = context.resources.getColorStateList(
+                    if (data.configXpModules.isNotEmpty()) {
+                        R.color.colorPrimaryLight
+                    } else {
+                        android.R.color.darker_gray
+                    },
+                    context.theme)
+        }
         if (data.isSystem) {
             mTvLabel.setTextColor(context.resources.getColor(R.color.colorAccent))
         } else {

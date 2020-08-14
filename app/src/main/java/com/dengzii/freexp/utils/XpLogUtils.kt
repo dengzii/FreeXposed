@@ -1,9 +1,9 @@
-package com.dengzii.freexp
+package com.dengzii.freexp.utils
 
 import de.robv.android.xposed.XposedBridge
 
 
-object Logger {
+object XpLogUtils {
     var processName = "-"
 
     fun simple(log: Any) {

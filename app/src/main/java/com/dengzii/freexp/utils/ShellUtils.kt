@@ -1,5 +1,6 @@
-package com.dengzii.freexp
+package com.dengzii.freexp.utils
 
+import android.util.Log
 import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.IOException
@@ -145,6 +146,8 @@ object ShellUtils {
             }
             process?.destroy()
         }
+        Log.d("ShellUtils", "execCommand: ${commands.joinToString("")}," +
+                " code=$result, suc=$successMsg, err=$errorMsg")
         return CommandResult(
                 result,
                 successMsg?.toString(),

@@ -5,6 +5,7 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.graphics.drawable.Drawable
 import android.util.Log
+import com.dengzii.freexp.utils.ShellUtils
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -33,7 +34,7 @@ class AppInfo(private val packageInfo: PackageInfo, context: Context) {
     val targetSdkVersion = packageInfo.applicationInfo.targetSdkVersion
     val taskAffinity = packageInfo.applicationInfo.taskAffinity
     val enabled = packageInfo.applicationInfo.enabled
-    val spDir = "$dataDir/shared_prefs"
+    val spDir = "$dataDir/shared_prefs/"
 
     val isSystem = (packageInfo.applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM) ==
             ApplicationInfo.FLAG_SYSTEM
@@ -45,6 +46,10 @@ class AppInfo(private val packageInfo: PackageInfo, context: Context) {
     var xpModuleName: String? = null
 
     companion object {
+        val sPackageList = mutableSetOf<AppInfo>()
+        val sXpModuleList = mutableSetOf<AppInfo>()
+        val sModuleEnabledList = mutableSetOf<AppInfo>()
+
         fun fromPackageInfo(packageInfo: PackageInfo, context: Context): AppInfo {
             return AppInfo(packageInfo, context)
         }
@@ -52,13 +57,12 @@ class AppInfo(private val packageInfo: PackageInfo, context: Context) {
 
     fun init(context: Context) {
         try {
-            if (!isSystem) {
-                val packageContext = createPackageContext(context)
-                loadXpModuleInfo(packageContext)
-                loadConfiguredXpModules(packageContext)
-            }
+            val packageContext = createPackageContext(context)
+            loadXpModuleInfo(packageContext)
+            loadConfiguredXpModules(packageContext)
+
         } catch (e: Throwable) {
-            Log.d(AppInfo::class.java.simpleName, "getXpModule: ${e.message}")
+            Log.e(AppInfo::class.java.simpleName, "getXpModule: ", e)
         }
         icon = packageInfo.applicationInfo.loadIcon(context.packageManager)
         appName = packageInfo.applicationInfo.loadLabel(context.packageManager).toString()
@@ -72,12 +76,17 @@ class AppInfo(private val packageInfo: PackageInfo, context: Context) {
 
     @Throws(Throwable::class)
     private fun loadXpModuleInfo(packageContext: Context) {
+        val assetManager = packageContext.resources.assets
+        if (assetManager.list("")?.contains("xposed_init") != true) {
+            return
+        }
         xpModuleName = try {
-            val input = packageContext.resources.assets.open("xposed_init")
+            val input = assetManager.open("xposed_init")
             val reader = BufferedReader(InputStreamReader(input))
             packageName + "#" + reader.readLine()
         } catch (e: Throwable) {
-            throw e
+            Log.e(AppInfo::class.java.simpleName, "loadXpModuleInfo: ", e)
+            null
         }
         isXpModule = !xpModuleName.isNullOrBlank()
     }
@@ -85,6 +94,9 @@ class AppInfo(private val packageInfo: PackageInfo, context: Context) {
     @Throws(Throwable::class)
     private fun loadConfiguredXpModules(packageContext: Context) {
         val spDirFile = File(spDir)
+        if (!spDirFile.exists()) {
+            return
+        }
         if (!spDirFile.canWrite()) {
             if (!ShellUtils.chmod(spDirFile.absolutePath, 777).success) {
 //                throw java.lang.Exception("chmod shared_prefs to 777 failed.")
